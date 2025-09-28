@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20.18.0"
+  VITE_SUPABASE_URL = "https://xngknwkedliioelnabwn.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZ2tud2tlZGxpaW9lbG5hYnduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MTEyMjYsImV4cCI6MjA3NDQ4NzIyNn0.dmwhvRTDWZNWd7Vk7mEa1Je0858cXdpecRzJnaLaT2w"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
