@@ -212,6 +212,49 @@ export const CapelaDonatePage: React.FC<CapelaDonatePage> = ({ onBack }) => {
     processStripeDonation(amount);
   };
 
+  const processStripeDonation = async (amount: number) => {
+    setIsProcessingStripe(true);
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-stripe-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount,
+          currency: stripeSettings.stripe_currency || 'BRL',
+          donor_name: donorInfo.name,
+          donor_email: donorInfo.email,
+          donor_phone: donorInfo.phone,
+          donation_purpose: donorInfo.purpose,
+          message: donorInfo.message,
+          success_url: `${window.location.origin}/donation-success`,
+          cancel_url: `${window.location.origin}/donation-error`
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao processar doação');
+      }
+
+      if (data.url) {
+        // Redirecionar para o Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('URL de checkout não recebida');
+      }
+    } catch (error) {
+      console.error('Erro ao processar doação Stripe:', error);
+      toast.error(error instanceof Error ? error.message : 'Erro ao processar doação. Tente novamente.');
+    } finally {
+      setIsProcessingStripe(false);
+    }
+  };
+
   // Melhoria na função de formatação de telefone
   const formatPhoneNumber = (value: string): string => {
     // Remove todos os caracteres não numéricos
@@ -693,4 +736,4 @@ export const CapelaDonatePage: React.FC<CapelaDonatePage> = ({ onBack }) => {
       </div>
     </div>
   );
-}; 
+};
