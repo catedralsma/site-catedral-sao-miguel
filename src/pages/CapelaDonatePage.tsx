@@ -237,15 +237,23 @@ export const CapelaDonatePage: React.FC<CapelaDonatePage> = ({ onBack }) => {
 
       const data = await response.json();
 
+      // Debug: mostrar a resposta completa para identificar o problema
+      console.log('Resposta completa da API Stripe:', data);
+      console.log('Propriedades disponíveis:', Object.keys(data));
+
       if (!response.ok) {
         throw new Error(data.error || 'Erro ao processar doação');
       }
 
-      if (data.url) {
+      // Verificar todas as possíveis propriedades de URL
+      const checkoutUrl = data.checkout_url || data.url || data.session_url || data.redirect_url;
+      
+      if (checkoutUrl) {
         // Redirecionar para o Stripe Checkout
-        window.location.href = data.url;
+        console.log('Redirecionando para:', checkoutUrl);
+        window.location.href = checkoutUrl;
       } else {
-        throw new Error('URL de checkout não recebida');
+        throw new Error(`URL de checkout não recebida. Dados recebidos: ${JSON.stringify(data)}`);
       }
     } catch (error) {
       console.error('Erro ao processar doação Stripe:', error);
