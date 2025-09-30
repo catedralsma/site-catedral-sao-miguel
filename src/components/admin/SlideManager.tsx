@@ -536,13 +536,14 @@ export const SlideManager: React.FC = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                     >
                       <option value="custom">Personalizado</option>
+                     <option value="internal_page">Página Interna</option>
                       <option value="blog_post">Post do Blog</option>
                       <option value="announcement">Anúncio</option>
                       <option value="event">Celebração</option>
                     </select>
                   </div>
 
-                  {editingSlide.content_type && editingSlide.content_type !== 'custom' && (
+                 {editingSlide.content_type && editingSlide.content_type !== 'custom' && editingSlide.content_type !== 'internal_page' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Conteúdo Relacionado
@@ -564,12 +565,43 @@ export const SlideManager: React.FC = () => {
                       </select>
                     </div>
                   )}
+
+                 {editingSlide.content_type === 'internal_page' && (
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                       Página Interna
+                     </label>
+                     <select
+                       value={editingSlide.link_url || ''}
+                       onChange={(e) => setEditingSlide(prev => prev ? { 
+                         ...prev, 
+                         link_url: e.target.value || null 
+                       } : null)}
+                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                     >
+                       <option value="">Selecione uma página</option>
+                       <option value="historia">História</option>
+                       <option value="capela">Capela São Miguel</option>
+                       <option value="pastorals">Pastorais</option>
+                       <option value="celebrations">Celebrações</option>
+                       <option value="blog">Blog</option>
+                       <option value="photos">Galeria de Fotos</option>
+                       <option value="albums">Álbuns de Fotos</option>
+                       <option value="timeline">Linha do Tempo</option>
+                       <option value="announcements">Eventos e Avisos</option>
+                       <option value="priests">Nosso Clero</option>
+                       <option value="contact">Contato</option>
+                       <option value="privacy-policy">Política de Privacidade</option>
+                       <option value="terms-of-use">Termos de Uso</option>
+                     </select>
+                   </div>
+                 )}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Link/URL {editingSlide.content_type === 'custom' ? '(opcional)' : '(automático se relacionado)'}
+                     Link/URL {editingSlide.content_type === 'custom' ? '(opcional)' : editingSlide.content_type === 'internal_page' ? '(automático)' : '(automático se relacionado)'}
                     </label>
                     <input
                       type="url"
@@ -577,12 +609,14 @@ export const SlideManager: React.FC = () => {
                       onChange={(e) => setEditingSlide(prev => prev ? { ...prev, link_url: e.target.value || null } : null)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
                       placeholder="https://exemplo.com ou /pagina-interna"
-                      disabled={editingSlide.content_type !== 'custom' && editingSlide.related_content_id}
+                     disabled={(editingSlide.content_type !== 'custom' && editingSlide.content_type !== 'internal_page' && editingSlide.related_content_id) || editingSlide.content_type === 'internal_page'}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      {editingSlide.content_type === 'custom' 
-                        ? 'URL externo ou rota interna'
-                        : 'Será gerado automaticamente se conteúdo relacionado for selecionado'
+                     {editingSlide.content_type === 'custom' 
+                       ? 'URL externo ou rota interna'
+                       : editingSlide.content_type === 'internal_page'
+                       ? 'Será gerado automaticamente baseado na página selecionada'
+                       : 'Será gerado automaticamente se conteúdo relacionado for selecionado'
                       }
                     </p>
                   </div>
