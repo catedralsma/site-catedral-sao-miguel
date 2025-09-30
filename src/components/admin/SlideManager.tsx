@@ -582,6 +582,7 @@ export const SlideManager: React.FC = () => {
                        <option value="">Selecione uma página</option>
                        <option value="historia">História</option>
                        <option value="capela">Capela São Miguel</option>
+                       <option value="capela-donate">Doações</option>
                        <option value="pastorals">Pastorais</option>
                        <option value="celebrations">Celebrações</option>
                        <option value="blog">Blog</option>
