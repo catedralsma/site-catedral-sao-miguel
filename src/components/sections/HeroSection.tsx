@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Cross, MessageCircle } from 'lucide-react';
+import { Church, MessageCircle, Cross } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Parish } from '../../lib/supabase';
 import { useTheme } from '../../lib/theme';
@@ -40,13 +40,35 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, parish }) 
       }}></div>
 
       <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        {/* Logo da Paróquia */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="mb-6 sm:mb-8"
+        >
+          {parish?.logo_url_light ? (
+            <img
+              src={parish.logo_url_light}
+              alt="Logo da Catedral"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain mx-auto"
+            />
+          ) : parish?.logo_url ? (
+            <img
+              src={parish.logo_url}
+              alt="Logo da Catedral"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain mx-auto"
+            />
+          ) : (
+            <Church className="w-20 h-20 sm:w-24 sm:h-24 mx-auto" style={{ color: 'var(--color-accent-2)' }} />
+          )}
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="mb-6 sm:mb-8"
         >
-          <Cross className="h-16 w-16 sm:h-20 sm:w-20 mx-auto mb-4 sm:mb-6" style={{ color: 'var(--color-accent-2)' }} />
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight" style={{ color: 'var(--color-text-light)' }}>
             {parish?.name || 'Catedral de São Miguel Arcanjo'}
           </h1>

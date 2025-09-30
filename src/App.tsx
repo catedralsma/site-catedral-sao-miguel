@@ -71,8 +71,96 @@ function App() {
   const [parish, setParish] = useState<any>(null);
   const [donationSessionId, setDonationSessionId] = useState<string | null>(null);
 
+  // Função para mapear URL para view
+  const getViewFromPath = (pathname: string): CurrentView => {
+    const routeMap: Record<string, CurrentView> = {
+      '/': 'home',
+      '/home': 'home',
+      '/inicio': 'home',
+      '/blog': 'blog',
+      '/mensagem': 'blog',
+      '/mensagem-de-fe': 'blog',
+      '/doacao': 'capela-donate',
+      '/doacoes': 'capela-donate',
+      '/capela-doacao': 'capela-donate',
+      '/donate': 'capela-donate',
+      '/donation': 'capela-donate',
+      '/historia': 'history',
+      '/history': 'history',
+      '/nossa-historia': 'history',
+      '/contato': 'contact',
+      '/contact': 'contact',
+      '/fale-conosco': 'contact',
+      '/pastorais': 'pastorals',
+      '/pastorals': 'pastorals',
+      '/grupos': 'pastorals',
+      '/celebracoes': 'celebrations',
+      '/celebrations': 'celebrations',
+      '/missas': 'celebrations',
+      '/horarios': 'celebrations',
+      '/fotos': 'photos',
+      '/photos': 'photos',
+      '/galeria': 'photos',
+      '/gallery': 'photos',
+      '/albuns': 'albums',
+      '/albums': 'albums',
+      '/galeria-completa': 'full-gallery',
+      '/full-gallery': 'full-gallery',
+      '/linha-do-tempo': 'timeline',
+      '/timeline': 'timeline',
+      '/historia-completa': 'timeline',
+      '/capela': 'capela',
+      '/chapel': 'capela',
+      '/sao-miguel': 'capela',
+      '/clero': 'priests',
+      '/priests': 'priests',
+      '/padres': 'priests',
+      '/eventos': 'announcements',
+      '/events': 'announcements',
+      '/avisos': 'announcements',
+      '/announcements': 'announcements',
+      '/politica-de-privacidade': 'privacy-policy',
+      '/privacy-policy': 'privacy-policy',
+      '/termos-de-uso': 'terms-of-use',
+      '/terms-of-use': 'terms-of-use'
+    };
+
+    return routeMap[pathname] || 'home';
+  };
+
+  // Função para atualizar a URL
+  const updateURL = (view: CurrentView) => {
+    const urlMap: Record<CurrentView, string> = {
+      'home': '/',
+      'blog': '/blog',
+      'capela-donate': '/doacao',
+      'donation-success': '/doacao-sucesso',
+      'donation-error': '/doacao-erro',
+      'history': '/historia',
+      'contact': '/contato',
+      'pastorals': '/pastorais',
+      'celebrations': '/celebracoes',
+      'photos': '/fotos',
+      'albums': '/albuns',
+      'full-gallery': '/galeria-completa',
+      'timeline': '/linha-do-tempo',
+      'capela': '/capela',
+      'priests': '/clero',
+      'announcements': '/eventos',
+      'privacy-policy': '/politica-de-privacidade',
+      'terms-of-use': '/termos-de-uso'
+    };
+
+    const url = urlMap[view] || '/';
+    window.history.pushState(null, '', url);
+  };
+
   // Hooks devem ser declarados no topo, antes do return e de qualquer lógica condicional de renderização
   useEffect(() => {
+    // Inicializar view baseada na URL atual
+    const initialView = getViewFromPath(window.location.pathname);
+    setCurrentView(initialView);
+
     // Load parish data for header logo
     const loadParishData = async () => {
       try {
@@ -124,6 +212,17 @@ function App() {
 
     return () => subscription.unsubscribe();
   }, []); // Empty dependency array means it runs once on mount
+
+  // Escutar mudanças na URL (botão voltar/avançar do navegador)
+  useEffect(() => {
+    const handlePopState = () => {
+      const newView = getViewFromPath(window.location.pathname);
+      setCurrentView(newView);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // NOVO useEffect para lidar com a URL de administração
   useEffect(() => {
@@ -179,6 +278,7 @@ function App() {
   }, []); // Executa apenas uma vez na inicialização
   const handleNavigate = (section: string) => {
     setCurrentView(section as CurrentView);
+    updateURL(section as CurrentView);
     
     // Scroll to top when navigating
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -190,21 +290,26 @@ function App() {
       switch (section) {
         case 'blog':
           setCurrentView('blog');
+          updateURL('blog');
           // You could add logic here to scroll to specific post or open it
           break;
         case 'announcements':
           setCurrentView('announcements');
+          updateURL('announcements');
           // You could add logic here to scroll to specific announcement
           break;
         case 'celebrations':
           setCurrentView('celebrations');
+          updateURL('celebrations');
           // You could add logic here to scroll to specific celebration
           break;
         default:
           setCurrentView(section as CurrentView);
+          updateURL(section as CurrentView);
       }
     } else {
       setCurrentView(section as CurrentView);
+      updateURL(section as CurrentView);
     }
     
     // Scroll to top when navigating
