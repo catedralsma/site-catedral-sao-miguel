@@ -60,7 +60,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, parish }) 
               className="w-20 h-20 sm:w-24 sm:h-24 object-contain mx-auto"
             />
           ) : (
-            <Church className="w-20 h-20 sm:w-24 sm:h-24 mx-auto" style={{ color: 'var(--color-accent-2)' }} />
+            <Church className="w-20 h-20 sm:w-24 sm:h-24 mx-auto text-white" />
           )}
         </motion.div>
 
