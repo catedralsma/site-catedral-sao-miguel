@@ -1,17 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Church, MessageCircle, Cross } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { Parish } from '../../lib/supabase';
+import { Parish, supabase } from '../../lib/supabase';
 import { useTheme } from '../../lib/theme';
 
 interface HeroSectionProps {
   onNavigate: (section: string) => void;
-  parish?: Parish | null;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, parish }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
   const { theme, isLoading: themeLoading } = useTheme();
+  const [parish, setParish] = useState<Parish | null>(null);
+  const [isLoadingParish, setIsLoadingParish] = useState(true);
+
+  useEffect(() => {
+    fetchParishData();
+  }, []);
+
+  const fetchParishData = async () => {
+    setIsLoadingParish(true);
+    try {
+      const { data, error } = await supabase
+        .from('parishes')
+        .select('*')
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setParish(data);
+      }
+    } catch (error) {
+      console.error('Error fetching parish data for hero:', error);
+    } finally {
+      setIsLoadingParish(false);
+    }
+  };
 
   const handleWhatsAppClick = () => {
     const phone = parish?.whatsapp_number || parish?.phone?.replace(/\D/g, '');
@@ -118,10 +146,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate, parish }) 
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-white/70 px-4"
         >
-          <p className="text-xs sm:text-sm text-center">
-            "Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles".
-          </p>
-          <p className="text-xs mt-1 text-blue-200 text-center">- Mateus 18,20</p>
         </motion.div>
       </div>
 
