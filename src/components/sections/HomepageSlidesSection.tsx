@@ -73,8 +73,8 @@ export const HomepageSlidesSection: React.FC<HomepageSlidesSectionProps> = ({ on
   const handleButtonClick = (slide: Slide) => {
     if (!slide.link_url && !slide.related_content_id) return;
 
-    // Handle custom links
-    if (slide.content_type === 'custom' && slide.link_url) {
+    // Handle custom and internal page links
+    if ((slide.content_type === 'custom' || slide.content_type === 'internal_page') && slide.link_url) {
       if (slide.link_url.startsWith('http')) {
         // External link
         window.open(slide.link_url, '_blank', 'noopener,noreferrer');
