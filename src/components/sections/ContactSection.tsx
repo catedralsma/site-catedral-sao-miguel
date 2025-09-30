@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Phone, Mail, Clock, MessageCircle, Facebook, Instagram, Youtube } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Mail, Clock, MessageCircle, Facebook, Instagram, Youtube, Church } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { supabase, Parish } from '../../lib/supabase';
@@ -453,11 +453,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onNavigate, isFu
                     className="w-16 h-auto object-contain opacity-80"
                   />
                 ) : (
-                  <img
-                    src="/footer.webp"
-                    alt="Logo da Catedral"
-                    className="w-24 h-auto object-contain opacity-80"
-                  />
+                  <Church className="w-16 h-16 text-gray-600 opacity-80" />
                 )}
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-gray-600 mt-4">
