@@ -43,25 +43,26 @@ export const ParishManager: React.FC = () => {
 
   const fetchParishData = async () => {
     try {
+      console.log('Fetching parish data...');
       const { data, error } = await supabase
         .from('parishes')
-        .select('*, logo_url_dark, logo_url_light, cloudinary_public_id_dark, cloudinary_public_id_light, whatsapp_number, facebook_username, instagram_username, twitter_username, youtube_channel')
+        .select('*')
         .limit(1)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found, which is expected for initial setup
+      if (error && error.code !== 'PGRST116') {
+        console.error('Fetch error:', error);
         throw error;
       }
 
       if (data) {
+        console.log('Fetched parish data:', data);
         setParish(data);
+      } else {
+        console.log('No parish data found, using defaults');
       }
     } catch (error) {
       console.error('Error fetching parish data:', error);
-      // Only show a toast if it's a real error, not just no data found
-      if (error instanceof Error && error.message !== 'PGRST116') {
-        toast.error('Erro ao buscar dados da paróquia.');
-      }
     }
   };
 
@@ -97,35 +98,76 @@ export const ParishManager: React.FC = () => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // First, check if a parish record already exists
-      const { data: existingData, error: fetchError } = await supabase
+      // Debug: Log current parish state
+      console.log('Current parish state before save:', parish);
+      
+      // Prepare data with explicit logo fields
+      const parishDataToSave = {
+        name: parish.name || '',
+        history: parish.history || '',
+        founded_year: parish.founded_year || 1622,
+        address: parish.address || '',
+        phone: parish.phone || '',
+        email: parish.email || '',
+        whatsapp_number: parish.whatsapp_number || null,
+        facebook_username: parish.facebook_username || null,
+        instagram_username: parish.instagram_username || null,
+        twitter_username: parish.twitter_username || null,
+        youtube_channel: parish.youtube_channel || null,
+        business_hours: parish.business_hours || null,
+        logo_url: parish.logo_url || null,
+        logo_url_dark: parish.logo_url_dark || null,
+        logo_url_light: parish.logo_url_light || null,
+        cloudinary_public_id: parish.cloudinary_public_id || null,
+        cloudinary_public_id_dark: parish.cloudinary_public_id_dark || null,
+        cloudinary_public_id_light: parish.cloudinary_public_id_light || null,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Data to save:', parishDataToSave);
+
+      // Use upsert to handle both insert and update
+      let savedData;
+      let upsertError;
+
+      // Check if we have an existing parish record
+      const { data: existingParish } = await supabase
         .from('parishes')
         .select('id')
         .limit(1)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 means no rows found
-        throw fetchError;
+      if (existingParish) {
+        // Update existing record
+        const { data, error } = await supabase
+          .from('parishes')
+          .update(parishDataToSave)
+          .eq('id', existingParish.id)
+          .select()
+          .single();
+        savedData = data;
+        upsertError = error;
+      } else {
+        // Insert new record
+        const { data, error } = await supabase
+          .from('parishes')
+          .insert([{ ...parishDataToSave, id: crypto.randomUUID() }])
+          .select()
+          .single();
+        savedData = data;
+        upsertError = error;
       }
 
-      if (existingData) {
-        // Update existing record
-        const { error: updateError } = await supabase
-          .from('parishes')
-          .update({
-            ...parish,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingData.id);
+      if (upsertError) {
+        console.error('Upsert error:', upsertError);
+        throw upsertError;
+      }
 
-        if (updateError) throw updateError;
-      } else {
-        // Create new record
-        const { error: insertError } = await supabase
-          .from('parishes')
-          .insert([parish]);
-
-        if (insertError) throw insertError;
+      console.log('Saved data:', savedData);
+      
+      // Update local state with saved data
+      if (savedData) {
+        setParish(savedData);
       }
 
       // Save hero settings to system_settings
@@ -170,24 +212,28 @@ export const ParishManager: React.FC = () => {
 
   // This is the single, corrected image upload function
   const handleCloudinaryUpload = async (result: { publicId: string; url: string; secureUrl: string }, logoType: 'original' | 'dark' | 'light' = 'original') => {
+    console.log(`Cloudinary upload for ${logoType}:`, result);
     if (logoType === 'dark') {
       setParish(prev => ({ 
         ...prev, 
         logo_url_dark: result.secureUrl,
         cloudinary_public_id_dark: result.publicId 
       }));
+      console.log('Updated parish state with dark logo:', result.secureUrl);
     } else if (logoType === 'light') {
       setParish(prev => ({ 
         ...prev, 
         logo_url_light: result.secureUrl,
         cloudinary_public_id_light: result.publicId 
       }));
+      console.log('Updated parish state with light logo:', result.secureUrl);
     } else {
       setParish(prev => ({ 
         ...prev, 
         logo_url: result.secureUrl,
         cloudinary_public_id: result.publicId 
       }));
+      console.log('Updated parish state with main logo:', result.secureUrl);
     }
     toast.success('Logo carregado com sucesso!');
   };
