@@ -101,7 +101,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             {parish?.name || 'Catedral de São Miguel Arcanjo'}
           </h1>
           <p className="text-base sm:text-lg mb-6 sm:mb-8" style={{ color: 'var(--color-accent-1)' }}>
-            {parish?.address?.split(',')[1]?.trim() || 'São Miguel Paulista, São Paulo'}
+            São Miguel Paulista - SP
           </p>
         </motion.div>
 
